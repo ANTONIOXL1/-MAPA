@@ -29,32 +29,37 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // ICONOS
   var iconos = {
-    ipress: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    }),
-    fabricante: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    }),
-    saneamiento: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    }),
-    importador: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    }),
-    default: L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    })
-  };
+  ipress: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2966/2966488.png', // hospital
+    iconSize: [30, 30]
+  }),
+  fabricante: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/3063/3063821.png', // fábrica
+    iconSize: [30, 30]
+  }),
+  saneamiento: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/728/728093.png', // agua
+    iconSize: [30, 30]
+  }),
+  importador: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2921/2921822.png', // caja
+    iconSize: [30, 30]
+  }),
+
+  farmacia: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483361.png',
+    iconSize: [30, 30]
+  }),
+  laboratorio: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/535/535239.png',
+    iconSize: [30, 30]
+  }),
+
+  default: L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+    iconSize: [30, 30]
+  })
+};
 
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
     .then(res => res.text())
