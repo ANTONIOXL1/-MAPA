@@ -2,31 +2,52 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Mapa</title>
+  <title>MAPA</title>
 
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #map {
+      height: 600px; /* 🔥 CLAVE para que se vea */
+      width: 100%;
+    }
   </style>
 </head>
 
 <body>
 
+<h1>MAPA</h1>
+<p style="text-align:center;">Mapa con leaflet desde google sheets</p>
+
 <div id="map"></div>
 
 <script>
 
+// Crear mapa centrado en Perú
 const map = L.map('map').setView([-9.19, -75.0152], 6);
 
+// Cargar mapa base
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: 'Map'
+  attribution: 'Map data © OpenStreetMap'
 }).addTo(map);
 
+// URL de tu Google Sheets
 const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv";
 
+// Leer datos
 fetch(url)
   .then(res => res.text())
   .then(data => {
@@ -52,10 +73,14 @@ fetch(url)
 
     });
 
+    // Ajustar mapa a los puntos
     if (bounds.length > 0) {
       map.fitBounds(bounds);
     }
 
+  })
+  .catch(error => {
+    console.log("Error:", error);
   });
 
 </script>
