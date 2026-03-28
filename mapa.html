@@ -4,13 +4,26 @@
   <meta charset="utf-8">
   <title>MAPA</title>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+    }
+
+    h1, p {
+      text-align: center;
+    }
+
+    /* 🔥 CLAVE */
     #map {
-      height: 600px;
+      height: 80vh;
+      width: 100%;
     }
   </style>
 </head>
@@ -18,16 +31,20 @@
 <body>
 
 <h1>MAPA</h1>
+<p>Mapa con leaflet desde google sheets</p>
 
 <div id="map"></div>
 
 <script>
-console.log("SCRIPT FUNCIONANDO"); // 👈 PRUEBA
 
+console.log("MAPA INICIANDO"); // 👈 prueba
+
+// Crear mapa
 const map = L.map('map').setView([-9.19, -75.0152], 6);
 
+// Capa base
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: 'Map'
+  attribution: '© OpenStreetMap'
 }).addTo(map);
 
 </script>
