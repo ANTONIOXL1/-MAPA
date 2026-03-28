@@ -1,41 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Mapa</title>
-    <meta charset="utf-8" />
+  <meta charset="UTF-8">
+  <title>Mapa Interactivo</title>
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-    <style>
-        #map {
-            height: 100vh; /* IMPORTANTE */
-            width: 100%;
-        }
-    </style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 100vh; /* ocupa toda la pantalla */
+      width: 100%;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>MAPA</h2>
 <div id="map"></div>
 
 <!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-    // Crear mapa centrado en Lima
-    var map = L.map('map').setView([-12.0464, -77.0428], 13);
+  // Crear mapa centrado en Lima
+  var map = L.map('map').setView([-12.0464, -77.0428], 13);
 
-    // Cargar mapa base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
+  // Cargar mapa base
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
 
-    // EJEMPLO de marcador
-    L.marker([-12.0464, -77.0428])
-        .addTo(map)
-        .bindPopup("Ejemplo en Lima")
-        .openPopup();
+  // Marcador simple
+  L.marker([-12.0464, -77.0428]).addTo(map)
+    .bindPopup("📍 Centro de Lima")
+    .openPopup();
+
+  // Ejemplo con varios puntos (puedes editar)
+  var puntos = [
+    { lat: -12.05, lng: -77.04, nombre: "Punto 1" },
+    { lat: -12.06, lng: -77.03, nombre: "Punto 2" }
+  ];
+
+  puntos.forEach(function(p) {
+    L.marker([p.lat, p.lng]).addTo(map)
+      .bindPopup(p.nombre);
+  });
+
 </script>
 
 </body>
