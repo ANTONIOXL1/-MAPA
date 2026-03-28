@@ -28,40 +28,45 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-  // 🇵🇪 Vista inicial Perú
+  // 🇵🇪 Vista Perú
   var map = L.map('map').setView([-9.19, -75.0152], 6);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // 🎯 ICONOS por tipo
+  // 🎨 ICONOS QUE SÍ FUNCIONAN
   var iconos = {
     ipress: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967350.png',
-      iconSize: [35, 35]
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
     }),
     fabricante: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/1995/1995574.png',
-      iconSize: [35, 35]
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
     }),
     saneamiento: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/728/728093.png',
-      iconSize: [35, 35]
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
     }),
     importador: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/2921/2921822.png',
-      iconSize: [35, 35]
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
     }),
     default: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [35, 35]
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
     })
   };
 
-  // 📡 Cargar datos desde Google Sheets
+  // 📡 Cargar CSV
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
-    .then(response => response.text())
+    .then(res => res.text())
     .then(data => {
 
       var filas = data.split("\n");
@@ -69,16 +74,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
       filas.slice(1).forEach(fila => {
 
+        fila = fila.replace(/"/g, ''); // limpiar comillas
+
         var columnas = fila.split(",");
 
-        // 📍 Separar lat y lng (misma columna)
-        var coords = columnas[0].split(",");
-
-        var lat = parseFloat(coords[0]);
-        var lng = parseFloat(coords[1]);
-
-        // 🏢 Tipo establecimiento
-        var tipo = (columnas[1] || "").toLowerCase();
+        var lat = parseFloat(columnas[0]);
+        var lng = parseFloat(columnas[1]);
+        var tipo = (columnas[2] || "").toLowerCase();
 
         if (!isNaN(lat) && !isNaN(lng)) {
 
@@ -97,11 +99,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
       });
 
-      // 🔥 Ajustar mapa automáticamente a los puntos
+      // 🔥 Ajuste automático
       if (bounds.length > 0) {
         map.fitBounds(bounds);
       }
 
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error cargando datos");
     });
 
 });
