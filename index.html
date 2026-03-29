@@ -9,6 +9,17 @@
   <style>
     body { margin: 0; }
     #map { height: 100vh; width: 100%; }
+
+    /* 🔥 QUITAR FONDO GRIS DE ICONOS */
+    .leaflet-marker-icon {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .leaflet-div-icon {
+      background: transparent !important;
+      border: none !important;
+    }
   </style>
 </head>
 
@@ -21,43 +32,53 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-  // 🇵🇪 MAPA INICIAL PERÚ
+  // 🇵🇪 MAPA INICIAL
   var map = L.map('map').setView([-9.19, -75.0152], 6);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // 🔥 ICONOS (ASEGÚRATE QUE EXISTAN)
+  // 🔥 ICONOS
   var iconos = {
     ipress: L.icon({
-      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png',
-      iconSize: [35, 35],
-      iconAnchor: [17, 35]
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=2',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+      shadowUrl: null
     }),
     saneamiento: L.icon({
-      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png',
-      iconSize: [35, 35],
-      iconAnchor: [17, 35]
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=2',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+      shadowUrl: null
     }),
     fabricante: L.icon({
-      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png',
-      iconSize: [35, 35],
-      iconAnchor: [17, 35]
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png?v=2',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+      shadowUrl: null
     }),
     importador: L.icon({
-      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png',
-      iconSize: [35, 35],
-      iconAnchor: [17, 35]
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png?v=2',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+      shadowUrl: null
     }),
     default: L.icon({
-      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png',
-      iconSize: [35, 35],
-      iconAnchor: [17, 35]
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=2',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+      shadowUrl: null
     })
   };
 
-  // 🧪 PRUEBA (SI ESTO NO SALE → PROBLEMA DE ICONOS)
+  // 🧪 PRUEBA (DEBE VERSE EN LIMA)
   L.marker([-12.0464, -77.0428], {
     icon: iconos.ipress
   }).addTo(map).bindPopup("PRUEBA LIMA");
@@ -104,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
           icono = iconos.importador;
         }
 
-        // 📍 CREAR MARCADOR
+        // 📍 MARCADOR
         L.marker([lat, lng], { icon: icono })
           .addTo(map)
           .bindPopup("Tipo: " + tipo);
@@ -114,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
     })
     .catch(err => {
       console.error(err);
-      alert("Error cargando CSV");
+      alert("Error cargando datos");
     });
 
 });
