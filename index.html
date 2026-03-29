@@ -10,12 +10,8 @@
     body { margin: 0; }
     #map { height: 100vh; width: 100%; }
 
-    /* 🔥 QUITAR FONDO GRIS DE ICONOS */
-    .leaflet-marker-icon {
-      background: transparent !important;
-      border: none !important;
-    }
-
+    /* 🔥 elimina fondo gris completamente */
+    .leaflet-marker-icon,
     .leaflet-div-icon {
       background: transparent !important;
       border: none !important;
@@ -39,43 +35,23 @@ document.addEventListener("DOMContentLoaded", function() {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // 🔥 ICONOS
+  // 🔥 FUNCIÓN PARA ICONOS LIMPIOS
+  function crearIcono(url) {
+    return L.divIcon({
+      html: `<img src="${url}" style="width:40px;height:40px;">`,
+      className: '',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
+    });
+  }
+
+  // 🎨 ICONOS
   var iconos = {
-    ipress: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-      shadowUrl: null
-    }),
-    saneamiento: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-      shadowUrl: null
-    }),
-    fabricante: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-      shadowUrl: null
-    }),
-    importador: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-      shadowUrl: null
-    }),
-    default: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
-      shadowUrl: null
-    })
+    ipress: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=3'),
+    saneamiento: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=3'),
+    fabricante: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png?v=3'),
+    importador: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png?v=3'),
+    default: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=3')
   };
 
   // 🧪 PRUEBA (DEBE VERSE EN LIMA)
@@ -83,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
     icon: iconos.ipress
   }).addTo(map).bindPopup("PRUEBA LIMA");
 
-  // 📡 CARGAR CSV
+  // 📡 TU GOOGLE SHEETS
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
     .then(res => res.text())
     .then(data => {
@@ -109,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (isNaN(lat) || isNaN(lng)) return;
 
-        // 🔥 ASIGNAR ICONO
+        // 🔥 SELECCIONAR ICONO
         var icono = iconos.default;
 
         if (tipo.includes("ipress")) {
