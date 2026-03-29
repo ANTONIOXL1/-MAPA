@@ -10,20 +10,10 @@
     body { margin: 0; }
     #map { height: 100vh; width: 100%; }
 
-    /* 🔥 eliminar TODO fondo posible */
     .leaflet-marker-icon,
     .leaflet-div-icon {
       background: transparent !important;
       border: none !important;
-    }
-
-    /* 🔥 forzar transparencia en imagen */
-    .icono-img {
-      width: 40px;
-      height: 40px;
-      display: block;
-      background: transparent !important;
-      mix-blend-mode: normal;
     }
   </style>
 </head>
@@ -37,36 +27,33 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
+  // 🇵🇪 MAPA INICIAL
   var map = L.map('map').setView([-9.19, -75.0152], 6);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // 🔥 ICONO LIMPIO TOTAL
+  // 🔥 FUNCIÓN ICONO LIMPIO
   function crearIcono(url) {
     return L.divIcon({
-      html: '<img class="icono-img" src="' + url + '">',
-      className: 'icono-contenedor',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40]
+      html: `<img src="${url}" style="width:35px;height:35px;">`,
+      className: '',
+      iconSize: [35, 35],
+      iconAnchor: [17, 35]
     });
   }
 
+  // 🎨 TUS ICONOS (CAMBIA SOLO SI CAMBIAS NOMBRES)
   var iconos = {
-    ipress: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=5'),
-    saneamiento: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=5'),
-    fabricante: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png?v=5'),
-    importador: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png?v=5'),
-    default: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png?v=5')
+    ipress: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png'),
+    saneamiento: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png'),
+    fabricante: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png'),
+    importador: crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png'),
+    default: crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png')
   };
 
-  // 🧪 PRUEBA
-  L.marker([-12.0464, -77.0428], {
-    icon: iconos.ipress
-  }).addTo(map).bindPopup("PRUEBA LIMA");
-
-  // 📡 CSV
+  // 📡 CARGAR CSV
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
     .then(res => res.text())
     .then(data => {
@@ -75,12 +62,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
       filas.slice(1).forEach(fila => {
 
-        if (!fila) return;
+        if (!fila.trim()) return;
 
         var columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
         if (columnas.length < 3) return;
 
+        var nombre = columnas[1] || "Sin nombre";
         var ubicacion = (columnas[2] || "").replace(/"/g, '').trim();
         var tipo = (columnas[3] || "").toLowerCase().trim();
 
@@ -92,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (isNaN(lat) || isNaN(lng)) return;
 
+        // 🔥 ASIGNACIÓN DE ICONO
         var icono = iconos.default;
 
         if (tipo.includes("ipress")) {
@@ -104,12 +93,22 @@ document.addEventListener("DOMContentLoaded", function() {
           icono = iconos.importador;
         }
 
+        // 📍 CREAR MARCADOR
         L.marker([lat, lng], { icon: icono })
           .addTo(map)
-          .bindPopup("Tipo: " + tipo);
+          .bindPopup(`
+            <b>${nombre}</b><br>
+            Tipo: ${tipo}<br>
+            Lat: ${lat}<br>
+            Lng: ${lng}
+          `);
 
       });
 
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error cargando datos");
     });
 
 });
