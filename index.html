@@ -7,8 +7,22 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; }
+    body { margin: 0; font-family: Arial; }
+    #map { height: 100vh; width: 100%; }
+
+    /* 🏷️ Leyenda */
+    .legend {
+      background: white;
+      padding: 10px;
+      line-height: 18px;
+      color: #333;
+      border-radius: 8px;
+    }
+    .legend img {
+      width: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
   </style>
 </head>
 
@@ -21,46 +35,46 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
+  // 🇵🇪 Vista Perú
   var map = L.map('map').setView([-9.19, -75.0152], 6);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // ICONOS
+  // 🎨 ICONOS DESDE TU GITHUB
   var iconos = {
-  ipress: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2966/2966488.png', // hospital
-    iconSize: [30, 30]
-  }),
-  fabricante: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/3063/3063821.png', // fábrica
-    iconSize: [30, 30]
-  }),
-  saneamiento: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/728/728093.png', // agua
-    iconSize: [30, 30]
-  }),
-  importador: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2921/2921822.png', // caja
-    iconSize: [30, 30]
-  }),
+    ipress: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png',
+      iconSize: [35, 35]
+    }),
+    saneamiento: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png',
+      iconSize: [35, 35]
+    }),
+    comercial: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/comercial_rojo.png',
+      iconSize: [35, 35]
+    }),
+    comercial2: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/comercial_verde.png',
+      iconSize: [35, 35]
+    }),
+    fabrica: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png',
+      iconSize: [35, 35]
+    }),
+    importador: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png',
+      iconSize: [35, 35]
+    }),
+    default: L.icon({
+      iconUrl: 'https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png',
+      iconSize: [35, 35]
+    })
+  };
 
-  farmacia: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483361.png',
-    iconSize: [30, 30]
-  }),
-  laboratorio: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/535/535239.png',
-    iconSize: [30, 30]
-  }),
-
-  default: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-    iconSize: [30, 30]
-  })
-};
-
+  // 📡 Cargar CSV
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
     .then(res => res.text())
     .then(data => {
@@ -70,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
       filas.slice(1).forEach(fila => {
 
-        // 🔥 dividir solo en 4 partes (para no romper la dirección)
         var columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
         var ubicacion = (columnas[2] || "").replace(/"/g, '').trim();
@@ -79,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (ubicacion.includes(",")) {
 
           var coords = ubicacion.split(",");
-
           var lat = parseFloat(coords[0]);
           var lng = parseFloat(coords[1]);
 
@@ -89,28 +101,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
             var icono = iconos.default;
 
-           var icono = iconos.default;
+            // 🔥 CONDICIONES
+            if (tipo.includes("ipress")) {
+              icono = iconos.ipress;
+            }
+            else if (tipo.includes("saneamiento")) {
+              icono = iconos.saneamiento;
+            }
+            else if (tipo.includes("comercial")) {
+              icono = iconos.comercial;
+            }
+            else if (tipo.includes("fabrica") || tipo.includes("importador")) {
+              icono = iconos.fabrica;
+            }
 
-// 🔥 condiciones inteligentes
-if (tipo.includes("ipress") || tipo.includes("hospital") || tipo.includes("clinica")) {
-  icono = iconos.ipress;
-}
-else if (tipo.includes("fabricante") || tipo.includes("industria")) {
-  icono = iconos.fabricante;
-}
-else if (tipo.includes("saneamiento") || tipo.includes("agua")) {
-  icono = iconos.saneamiento;
-}
-else if (tipo.includes("importador")) {
-  icono = iconos.importador;
-}
-else if (tipo.includes("farmacia") || tipo.includes("botica")) {
-  icono = iconos.farmacia;
-}
-else if (tipo.includes("laboratorio")) {
-  icono = iconos.laboratorio;
-}
-            L.marker([lat, lng], { icon: icono }).addTo(map)
+            L.marker([lat, lng], { icon: icono })
+              .addTo(map)
               .bindPopup("🏢 Tipo: " + tipo);
           }
         }
@@ -121,11 +127,24 @@ else if (tipo.includes("laboratorio")) {
         map.fitBounds(bounds);
       }
 
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error cargando datos");
     });
+
+  // 🏷️ LEYENDA
+  var legend = L.control({position: 'bottomright'});
+
+  legend.onAdd = function () {
+    var div = L.DomUtil.create('div', 'legend');
+
+    div.innerHTML += "<b>Tipos</b><br>";
+    div.innerHTML += "<img src='https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png'> IPRESS<br>";
+    div.innerHTML += "<img src='https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png'> Saneamiento<br>";
+    div.innerHTML += "<img src='https://antonioxl1.github.io/MAPA/iconos/comercial_rojo.png'> Comercial<br>";
+    div.innerHTML += "<img src='https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png'> Fábrica / Importador<br>";
+
+    return div;
+  };
+
+  legend.addTo(map);
 
 });
 </script>
