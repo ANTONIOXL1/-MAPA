@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Perú FINAL PRO</title>
+<title>Mapa Perú OK</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
@@ -16,10 +16,6 @@ body { margin:0; font-family: Arial; }
   display:flex;
   gap:10px;
   flex-wrap:wrap;
-}
-
-select, input {
-  padding:6px;
 }
 </style>
 </head>
@@ -58,11 +54,9 @@ select, input {
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-  var map = L.map('map').setView([-12.04, -77.03], 10);
+  var map = L.map('map').setView([-12.04, -77.03], 11);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
   var markers = [];
   var dataGlobal = [];
@@ -71,16 +65,11 @@ document.addEventListener("DOMContentLoaded", function(){
     return (txt||"").toString().toLowerCase().trim();
   }
 
-  function limpiarTexto(txt){
-    return (txt||"").toString().replace(/"/g,'').trim();
-  }
-
   function crearIcono(url){
-    return L.divIcon({
-      html: `<img src="${url}" width="35" onerror="this.src='https://cdn-icons-png.flaticon.com/512/252/252025.png'">`,
-      className:'',
-      iconSize:[35,35],
-      iconAnchor:[17,35]
+    return L.icon({
+      iconUrl: url,
+      iconSize: [30,30],
+      iconAnchor: [15,30]
     });
   }
 
@@ -89,29 +78,13 @@ document.addEventListener("DOMContentLoaded", function(){
     tipo = limpiar(tipo);
     resultado = limpiar(resultado);
 
-    var esNo = resultado.includes("no");
-    var esSi = resultado.includes("conforme") && !resultado.includes("no");
+    let rojo = "https://cdn-icons-png.flaticon.com/512/463/463612.png";
+    let verde = "https://cdn-icons-png.flaticon.com/512/190/190411.png";
 
-    // IPRESS / SANEAMIENTO
-    if(tipo.includes("ipress") || tipo.includes("saneamiento")){
-      if(esNo) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png');
-      if(esSi) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
-    }
+    if(resultado.includes("no")) return crearIcono(rojo);
+    if(resultado.includes("conforme")) return crearIcono(verde);
 
-    // FABRICANTE
-    if(tipo.includes("fabricante")){
-      if(esNo) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png');
-      if(esSi) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png');
-    }
-
-    // IMPORTADOR
-    if(tipo.includes("importador")){
-      if(esNo) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_rojo.png');
-      if(esSi) return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png');
-    }
-
-    // SI FALLA TODO
-    return crearIcono('https://cdn-icons-png.flaticon.com/512/252/252025.png');
+    return crearIcono(verde);
   }
 
   function dibujar(data){
@@ -121,50 +94,47 @@ document.addEventListener("DOMContentLoaded", function(){
 
     data.forEach(d => {
 
-      var m = L.marker([d.lat, d.lng], {
+      let marker = L.marker([d.lat, d.lng], {
         icon: icono(d.tipo, d.resultado)
       })
       .addTo(map)
       .bindPopup(`
-        <b>${d.direccion || "Sin dirección"}</b><br>
-        📍 ${d.distrito || "Sin distrito"}<br>
-        📅 ${d.mes || "Sin mes"}<br>
-        ⚠️ ${d.resultado || "Sin resultado"}<br>
-        🛑 ${d.medida || "Sin medida"}
+        <b>${d.direccion}</b><br>
+        ${d.distrito}<br>
+        ${d.mes}<br>
+        ${d.resultado}
       `);
 
-      markers.push(m);
+      markers.push(marker);
     });
   }
 
   function filtrar(){
 
-    var texto = limpiar(document.getElementById("buscar").value);
-    var res = limpiar(document.getElementById("filtroResultado").value);
-    var tipo = limpiar(document.getElementById("filtroTipo").value);
-    var mes = limpiar(document.getElementById("filtroMes").value);
+    let texto = limpiar(document.getElementById("buscar").value);
+    let res = limpiar(document.getElementById("filtroResultado").value);
+    let tipo = limpiar(document.getElementById("filtroTipo").value);
+    let mes = limpiar(document.getElementById("filtroMes").value);
 
-    var filtrados = dataGlobal.filter(d => {
+    let filtrados = dataGlobal.filter(d => {
 
-      var dRes = limpiar(d.resultado);
-      var dTipo = limpiar(d.tipo);
-      var dMes = limpiar(d.mes);
-      var dDistrito = limpiar(d.distrito);
+      let dRes = limpiar(d.resultado);
+      let dTipo = limpiar(d.tipo);
+      let dMes = limpiar(d.mes);
+      let dDist = limpiar(d.distrito);
 
-      var cumpleResultado = true;
-
+      let okRes = true;
       if(res === "conforme"){
-        cumpleResultado = dRes.includes("conforme") && !dRes.includes("no");
-      }
-      else if(res === "no"){
-        cumpleResultado = dRes.includes("no");
+        okRes = dRes.includes("conforme") && !dRes.includes("no");
+      } else if(res === "no"){
+        okRes = dRes.includes("no");
       }
 
-      var cumpleTipo = !tipo || dTipo.includes(tipo);
-      var cumpleMes = !mes || dMes.includes(mes);
-      var cumpleTexto = !texto || dDistrito.includes(texto);
+      let okTipo = !tipo || dTipo.includes(tipo);
+      let okMes = !mes || dMes.includes(mes);
+      let okTexto = !texto || dDist.includes(texto);
 
-      return cumpleResultado && cumpleTipo && cumpleMes && cumpleTexto;
+      return okRes && okTipo && okMes && okTexto;
     });
 
     dibujar(filtrados);
@@ -175,42 +145,43 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("filtroTipo").onchange = filtrar;
   document.getElementById("filtroMes").onchange = filtrar;
 
+  // 🔥 LECTURA CSV CORREGIDA
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
-  .then(r => r.text())
-  .then(data => {
+  .then(res => res.text())
+  .then(text => {
 
-    var filas = data.split("\n");
+    let filas = text.split("\n");
 
-    filas.slice(1).forEach(f => {
+    for(let i=1;i<filas.length;i++){
 
-      if(!f.trim()) return;
+      let cols = filas[i].split(",");
 
-      var c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      if(cols.length < 7) continue;
 
-      var ubic = limpiarTexto(c[1]);
-      if(!ubic.includes(",")) return;
+      let coords = cols[1].replace(/"/g,'').split(",");
 
-      var coords = ubic.split(",");
-      var lat = parseFloat(coords[0]);
-      var lng = parseFloat(coords[1]);
+      if(coords.length < 2) continue;
 
-      if(isNaN(lat) || isNaN(lng)) return;
+      let lat = parseFloat(coords[0]);
+      let lng = parseFloat(coords[1]);
+
+      if(isNaN(lat) || isNaN(lng)) continue;
 
       dataGlobal.push({
+        direccion: cols[0],
         lat: lat,
         lng: lng,
-        direccion: limpiarTexto(c[0]),
-        tipo: limpiarTexto(c[2]),
-        resultado: limpiarTexto(c[3]),
-        distrito: limpiarTexto(c[4]),
-        mes: limpiarTexto(c[5]),
-        medida: limpiarTexto(c[6])
+        tipo: cols[2],
+        resultado: cols[3],
+        distrito: cols[4],
+        mes: cols[5],
+        medida: cols[6]
       });
+    }
 
-    });
+    console.log("DATOS:", dataGlobal); // 👈 VERIFICACIÓN
 
     dibujar(dataGlobal);
-
   });
 
 });
