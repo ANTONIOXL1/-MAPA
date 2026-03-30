@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Perú</title>
+<title>Mapa Perú FINAL</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
@@ -71,6 +71,10 @@ document.addEventListener("DOMContentLoaded", function(){
     return (txt||"").toString().toLowerCase().trim();
   }
 
+  function limpiarTexto(txt){
+    return (txt||"").toString().replace(/"/g,'').trim();
+  }
+
   function crearIcono(url){
     return L.divIcon({
       html: `<img src="${url}" width="35">`,
@@ -109,19 +113,28 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   function dibujar(data){
+
     markers.forEach(m => map.removeLayer(m));
     markers = [];
 
     data.forEach(d => {
+
       var m = L.marker([d.lat, d.lng], {
         icon: icono(d.tipo, d.resultado)
-      }).addTo(map);
+      })
+      .addTo(map)
+      .bindPopup(`
+        <b>${d.direccion || "Sin dirección"}</b><br>
+        📍 ${d.distrito || "Sin distrito"}<br>
+        📅 ${d.mes || "Sin mes"}<br>
+        ⚠️ ${d.resultado || "Sin resultado"}<br>
+        🛑 ${d.medida || "Sin medida"}
+      `);
 
       markers.push(m);
     });
   }
 
-  // 🔥 FILTRO REAL CORREGIDO
   function filtrar(){
 
     var texto = limpiar(document.getElementById("buscar").value);
@@ -136,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function(){
       var dMes = limpiar(d.mes);
       var dDistrito = limpiar(d.distrito);
 
-      // RESULTADO
+      // RESULTADO CORRECTO
       var cumpleResultado = true;
       if(res === "conforme"){
         cumpleResultado = dRes.includes("conforme") && !dRes.includes("no");
@@ -151,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function(){
       // MES
       var cumpleMes = !mes || dMes.includes(mes);
 
-      // TEXTO
+      // DISTRITO
       var cumpleTexto = !texto || dDistrito.includes(texto);
 
       return cumpleResultado && cumpleTipo && cumpleMes && cumpleTexto;
@@ -165,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("filtroTipo").onchange = filtrar;
   document.getElementById("filtroMes").onchange = filtrar;
 
-  fetch("TU_CSV_AQUI")
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
   .then(r => r.text())
   .then(data => {
 
@@ -173,26 +186,34 @@ document.addEventListener("DOMContentLoaded", function(){
 
     filas.slice(1).forEach(f => {
 
-      var c = f.split(",");
+      if(!f.trim()) return;
 
-      if(c.length < 6) return;
+      var c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-      var coords = c[1].split(",");
+      var ubic = limpiarTexto(c[1]);
+      if(!ubic.includes(",")) return;
 
-      if(coords.length < 2) return;
+      var coords = ubic.split(",");
+      var lat = parseFloat(coords[0]);
+      var lng = parseFloat(coords[1]);
+
+      if(isNaN(lat) || isNaN(lng)) return;
 
       dataGlobal.push({
-        lat: parseFloat(coords[0]),
-        lng: parseFloat(coords[1]),
-        tipo: c[2],
-        resultado: c[3],
-        distrito: c[4],
-        mes: c[5]
+        lat: lat,
+        lng: lng,
+        direccion: limpiarTexto(c[0]),
+        tipo: limpiarTexto(c[2]),
+        resultado: limpiarTexto(c[3]),
+        distrito: limpiarTexto(c[4]),
+        mes: limpiarTexto(c[5]),
+        medida: limpiarTexto(c[6])
       });
 
     });
 
     dibujar(dataGlobal);
+
   });
 
 });
