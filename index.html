@@ -84,33 +84,44 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   }
 
-  function icono(tipo, resultado){
+ function icono(tipo, resultado){
 
-    tipo = limpiar(tipo);
-    resultado = limpiar(resultado);
+  tipo = limpiar(tipo);
+  resultado = limpiar(resultado);
 
-    var esNo = resultado.includes("no");
+  var esNoConforme = resultado.includes("no");
+  var esConforme = resultado.includes("conforme") && !resultado.includes("no");
 
-    if(tipo.includes("ipress") || tipo.includes("saneamiento")){
-      return esNo
-        ? crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png')
-        : crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
+  // IPRESS o SANEAMIENTO
+  if(tipo.includes("ipress") || tipo.includes("saneamiento")){
+    if(esNoConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png');
+    } else if(esConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
     }
-
-    if(tipo.includes("fabricante")){
-      return esNo
-        ? crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png')
-        : crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png');
-    }
-
-    if(tipo.includes("importador")){
-      return esNo
-        ? crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_rojo.png')
-        : crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png');
-    }
-
-    return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
   }
+
+  // FABRICANTE
+  if(tipo.includes("fabricante")){
+    if(esNoConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png');
+    } else if(esConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png');
+    }
+  }
+
+  // IMPORTADOR
+  if(tipo.includes("importador")){
+    if(esNoConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_rojo.png');
+    } else if(esConforme){
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png');
+    }
+  }
+
+  // DEFAULT (SI ALGO FALLA)
+  return crearIcono('https://cdn-icons-png.flaticon.com/512/252/252025.png');
+}
 
   function dibujar(data){
 
