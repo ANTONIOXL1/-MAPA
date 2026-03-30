@@ -2,20 +2,26 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Perú OK</title>
+<title>Mapa Perú PRO</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 body { margin:0; font-family: Arial; }
+
 #map { height:90vh; }
 
+/* 🔥 Panel de filtros */
 #filtros {
   padding:10px;
   background:#f4f4f4;
   display:flex;
   gap:10px;
   flex-wrap:wrap;
+}
+
+select, input {
+  padding:5px;
 }
 </style>
 </head>
@@ -27,23 +33,23 @@ body { margin:0; font-family: Arial; }
 
   <select id="filtroResultado">
     <option value="">Resultado</option>
-    <option value="conforme">Conforme</option>
-    <option value="no">No Conforme</option>
+    <option>Conforme</option>
+    <option>No Conforme</option>
   </select>
 
   <select id="filtroTipo">
     <option value="">Tipo</option>
-    <option value="ipress">IPRESS</option>
-    <option value="saneamiento">Saneamiento</option>
-    <option value="fabricante">Fabricante</option>
-    <option value="importador">Importador</option>
+    <option>IPRESS</option>
+    <option>Emp. Saneamiento</option>
+    <option>Fabricante</option>
+    <option>Importador</option>
   </select>
 
   <select id="filtroMes">
     <option value="">Mes</option>
-    <option value="enero">Enero</option>
-    <option value="febrero">Febrero</option>
-    <option value="marzo">Marzo</option>
+    <option>Enero</option>
+    <option>Febrero</option>
+    <option>Marzo</option>
   </select>
 </div>
 
@@ -54,37 +60,48 @@ body { margin:0; font-family: Arial; }
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-  var map = L.map('map').setView([-12.04, -77.03], 11);
+  var map = L.map('map').setView([-9.19, -75.0152], 6);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
 
   var markers = [];
   var dataGlobal = [];
 
   function limpiar(txt){
-    return (txt||"").toString().toLowerCase().trim();
+    return (txt||"").toLowerCase().trim();
   }
 
   function crearIcono(url){
-    return L.icon({
-      iconUrl: url,
-      iconSize: [30,30],
-      iconAnchor: [15,30]
+    return L.divIcon({
+      html: `<img src="${url}" width="35">`,
+      className:'',
+      iconSize:[35,35],
+      iconAnchor:[17,35]
     });
   }
 
   function icono(tipo, resultado){
-
     tipo = limpiar(tipo);
     resultado = limpiar(resultado);
 
-    let rojo = "https://cdn-icons-png.flaticon.com/512/463/463612.png";
-    let verde = "https://cdn-icons-png.flaticon.com/512/190/190411.png";
+    if((tipo.includes("ipress")||tipo.includes("saneamiento")) && resultado.includes("no"))
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png');
 
-    if(resultado.includes("no")) return crearIcono(rojo);
-    if(resultado.includes("conforme")) return crearIcono(verde);
+    if((tipo.includes("ipress")||tipo.includes("saneamiento")))
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
 
-    return crearIcono(verde);
+    if(tipo.includes("fabricante") && resultado.includes("no"))
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png');
+
+    if(tipo.includes("fabricante"))
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png');
+
+    if(tipo.includes("importador") && resultado.includes("no"))
+      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_rojo.png');
+
+    return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png');
   }
 
   function dibujar(data){
@@ -94,94 +111,79 @@ document.addEventListener("DOMContentLoaded", function(){
 
     data.forEach(d => {
 
-      let marker = L.marker([d.lat, d.lng], {
+      var m = L.marker([d.lat, d.lng], {
         icon: icono(d.tipo, d.resultado)
       })
       .addTo(map)
       .bindPopup(`
         <b>${d.direccion}</b><br>
         ${d.distrito}<br>
-        ${d.mes}<br>
         ${d.resultado}
       `);
 
-      markers.push(marker);
+      markers.push(m);
     });
+
   }
 
   function filtrar(){
 
-    let texto = limpiar(document.getElementById("buscar").value);
-    let res = limpiar(document.getElementById("filtroResultado").value);
-    let tipo = limpiar(document.getElementById("filtroTipo").value);
-    let mes = limpiar(document.getElementById("filtroMes").value);
+    var texto = limpiar(document.getElementById("buscar").value);
+    var res = limpiar(document.getElementById("filtroResultado").value);
+    var tipo = limpiar(document.getElementById("filtroTipo").value);
+    var mes = limpiar(document.getElementById("filtroMes").value);
 
-    let filtrados = dataGlobal.filter(d => {
+    var filtrados = dataGlobal.filter(d => {
 
-      let dRes = limpiar(d.resultado);
-      let dTipo = limpiar(d.tipo);
-      let dMes = limpiar(d.mes);
-      let dDist = limpiar(d.distrito);
-
-      let okRes = true;
-      if(res === "conforme"){
-        okRes = dRes.includes("conforme") && !dRes.includes("no");
-      } else if(res === "no"){
-        okRes = dRes.includes("no");
-      }
-
-      let okTipo = !tipo || dTipo.includes(tipo);
-      let okMes = !mes || dMes.includes(mes);
-      let okTexto = !texto || dDist.includes(texto);
-
-      return okRes && okTipo && okMes && okTexto;
+      return (!texto || limpiar(d.distrito).includes(texto)) &&
+             (!res || limpiar(d.resultado).includes(res)) &&
+             (!tipo || limpiar(d.tipo).includes(tipo)) &&
+             (!mes || limpiar(d.mes).includes(mes));
     });
 
     dibujar(filtrados);
   }
 
+  // eventos
   document.getElementById("buscar").oninput = filtrar;
   document.getElementById("filtroResultado").onchange = filtrar;
   document.getElementById("filtroTipo").onchange = filtrar;
   document.getElementById("filtroMes").onchange = filtrar;
 
-  // 🔥 LECTURA CSV CORREGIDA
+  // cargar CSV
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
-  .then(res => res.text())
-  .then(text => {
+  .then(r=>r.text())
+  .then(data=>{
 
-    let filas = text.split("\n");
+    var filas = data.split("\n");
 
-    for(let i=1;i<filas.length;i++){
+    filas.slice(1).forEach(fila=>{
 
-      let cols = filas[i].split(",");
+      var col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
-      if(cols.length < 7) continue;
+      var ubic = (col[2]||"").replace(/"/g,'');
+      if(!ubic.includes(",")) return;
 
-      let coords = cols[1].replace(/"/g,'').split(",");
+      var c = ubic.split(",");
+      var lat = parseFloat(c[0]);
+      var lng = parseFloat(c[1]);
 
-      if(coords.length < 2) continue;
-
-      let lat = parseFloat(coords[0]);
-      let lng = parseFloat(coords[1]);
-
-      if(isNaN(lat) || isNaN(lng)) continue;
+      if(isNaN(lat)||isNaN(lng)) return;
 
       dataGlobal.push({
-        direccion: cols[0],
-        lat: lat,
-        lng: lng,
-        tipo: cols[2],
-        resultado: cols[3],
-        distrito: cols[4],
-        mes: cols[5],
-        medida: cols[6]
+        lat:lat,
+        lng:lng,
+        direccion:col[1],
+        tipo:col[3],
+        resultado:col[4],
+        distrito:col[5] || "",
+        mes:col[6] || ""
       });
-    }
 
-    console.log("DATOS:", dataGlobal); // 👈 VERIFICACIÓN
+    });
 
     dibujar(dataGlobal);
+
   });
 
 });
