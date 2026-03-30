@@ -2,55 +2,186 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Perú PRO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa Perú PRO - Monitoreo de Establecimientos</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
 <style>
-body { margin:0; font-family: Arial; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-#map { height:90vh; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+  }
 
-/* 🔥 Panel de filtros */
-#filtros {
-  padding:10px;
-  background:#f4f4f4;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
+  #map {
+    height: calc(100vh - 80px);
+    width: 100%;
+  }
 
-select, input {
-  padding:5px;
-}
+  /* Panel de filtros mejorado */
+  #filtros {
+    background: white;
+    padding: 12px 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    z-index: 1000;
+  }
+
+  .filtro-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .filtro-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+  }
+
+  select, input {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  select:hover, input:hover {
+    border-color: #80bdff;
+  }
+
+  select:focus, input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+  }
+
+  #buscar {
+    min-width: 200px;
+  }
+
+  .contador {
+    margin-left: auto;
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    #filtros {
+      padding: 10px;
+      gap: 8px;
+    }
+    
+    .filtro-group {
+      flex: 1;
+      min-width: calc(50% - 20px);
+    }
+    
+    #buscar {
+      min-width: auto;
+    }
+    
+    .contador {
+      margin-left: 0;
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  /* Estilos para el popup */
+  .custom-popup .popup-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #007bff;
+  }
+  
+  .custom-popup .popup-detail {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 3px;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+  
+  .badge-conforme {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .badge-no-conforme {
+    background: #f8d7da;
+    color: #721c24;
+  }
 </style>
 </head>
-
 <body>
 
 <div id="filtros">
-  <input type="text" id="buscar" placeholder="Buscar distrito...">
+  <div class="filtro-group">
+    <label>🔍 Buscar:</label>
+    <input type="text" id="buscar" placeholder="Distrito...">
+  </div>
 
-  <select id="filtroResultado">
-    <option value="">Resultado</option>
-    <option>Conforme</option>
-    <option>No Conforme</option>
-  </select>
+  <div class="filtro-group">
+    <label>✅ Resultado:</label>
+    <select id="filtroResultado">
+      <option value="">Todos</option>
+      <option value="Conforme">Conforme</option>
+      <option value="No Conforme">No Conforme</option>
+    </select>
+  </div>
 
-  <select id="filtroTipo">
-    <option value="">Tipo</option>
-    <option>IPRESS</option>
-    <option>Emp. Saneamiento</option>
-    <option>Fabricante</option>
-    <option>Importador</option>
-  </select>
+  <div class="filtro-group">
+    <label>🏢 Tipo:</label>
+    <select id="filtroTipo">
+      <option value="">Todos</option>
+      <option value="IPRESS">IPRESS</option>
+      <option value="Emp. Saneamiento">Emp. Saneamiento</option>
+      <option value="Fabricante">Fabricante</option>
+      <option value="Importador">Importador</option>
+    </select>
+  </div>
 
-  <select id="filtroMes">
-    <option value="">Mes</option>
-    <option>Enero</option>
-    <option>Febrero</option>
-    <option>Marzo</option>
-  </select>
+  <div class="filtro-group">
+    <label>📅 Mes:</label>
+    <select id="filtroMes">
+      <option value="">Todos</option>
+      <option value="Enero">Enero</option>
+      <option value="Febrero">Febrero</option>
+      <option value="Marzo">Marzo</option>
+    </select>
+  </div>
+
+  <div class="contador" id="contador">0 establecimientos</div>
 </div>
 
 <div id="map"></div>
@@ -58,134 +189,214 @@ select, input {
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function() {
 
+  // Inicializar mapa
   var map = L.map('map').setView([-9.19, -75.0152], 6);
-
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
   }).addTo(map);
 
+  // Variables globales
   var markers = [];
   var dataGlobal = [];
+  var markerClusterGroup = null;
 
-  function limpiar(txt){
-    return (txt||"").toLowerCase().trim();
+  // Función para normalizar texto
+  function limpiar(txt) {
+    if (!txt) return "";
+    return String(txt).toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
-  function crearIcono(url){
+  // Función para crear íconos
+  function crearIcono(url) {
     return L.divIcon({
-      html: `<img src="${url}" width="35">`,
-      className:'',
-      iconSize:[35,35],
-      iconAnchor:[17,35]
+      html: `<div style="background: white; border-radius: 50%; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+               <img src="${url}" style="width: 32px; height: 32px; display: block;">
+             </div>`,
+      className: 'custom-marker',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -18]
     });
   }
 
-  function icono(tipo, resultado){
+  // Función para determinar el ícono según tipo y resultado
+  function obtenerIcono(tipo, resultado) {
     tipo = limpiar(tipo);
     resultado = limpiar(resultado);
-
-    if((tipo.includes("ipress")||tipo.includes("saneamiento")) && resultado.includes("no"))
-      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_rojo.png');
-
-    if((tipo.includes("ipress")||tipo.includes("saneamiento")))
-      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/ipress_verde.png');
-
-    if(tipo.includes("fabricante") && resultado.includes("no"))
-      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_rojo.png');
-
-    if(tipo.includes("fabricante"))
-      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabrica_verde.png');
-
-    if(tipo.includes("importador") && resultado.includes("no"))
-      return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_rojo.png');
-
-    return crearIcono('https://antonioxl1.github.io/MAPA/iconos/fabricante_verde.png');
+    const esNoConforme = resultado.includes("no");
+    
+    // Mapeo de tipos e íconos
+    const iconos = {
+      ipress: esNoConforme ? 'ipress_rojo.png' : 'ipress_verde.png',
+      saneamiento: esNoConforme ? 'ipress_rojo.png' : 'ipress_verde.png',
+      fabricante: esNoConforme ? 'fabrica_rojo.png' : 'fabrica_verde.png',
+      importador: esNoConforme ? 'fabricante_rojo.png' : 'fabricante_verde.png'
+    };
+    
+    let iconName = iconos.fabricante_verde; // default
+    for (let key in iconos) {
+      if (tipo.includes(key)) {
+        iconName = iconos[key];
+        break;
+      }
+    }
+    
+    return crearIcono(`https://antonioxl1.github.io/MAPA/iconos/${iconName}`);
   }
 
-  function dibujar(data){
-
+  // Función para dibujar marcadores en el mapa
+  function dibujar(data) {
+    // Limpiar marcadores existentes
     markers.forEach(m => map.removeLayer(m));
     markers = [];
-
+    
+    // Actualizar contador
+    document.getElementById("contador").textContent = `${data.length} establecimientos`;
+    
+    // Agregar nuevos marcadores
     data.forEach(d => {
-
-      var m = L.marker([d.lat, d.lng], {
-        icon: icono(d.tipo, d.resultado)
-      })
-      .addTo(map)
-      .bindPopup(`
-        <b>${d.direccion}</b><br>
-        ${d.distrito}<br>
-        ${d.resultado}
-      `);
-
-      markers.push(m);
+      var marker = L.marker([d.lat, d.lng], {
+        icon: obtenerIcono(d.tipo, d.resultado)
+      }).addTo(map);
+      
+      // Crear contenido del popup
+      const resultadoClass = d.resultado === "Conforme" ? "badge-conforme" : "badge-no-conforme";
+      const resultadoText = d.resultado === "Conforme" ? "✅ Conforme" : "❌ No Conforme";
+      
+      marker.bindPopup(`
+        <div class="custom-popup" style="min-width: 200px;">
+          <div class="popup-title">📍 ${d.direccion || 'Dirección no especificada'}</div>
+          <div class="popup-detail">🏙️ Distrito: ${d.distrito || 'No especificado'}</div>
+          <div class="popup-detail">🏢 Tipo: ${d.tipo || 'No especificado'}</div>
+          <div class="popup-detail">📅 Mes: ${d.mes || 'No especificado'}</div>
+          <div class="badge ${resultadoClass}" style="margin-top: 8px;">${resultadoText}</div>
+        </div>
+      `, { maxWidth: 300 });
+      
+      markers.push(marker);
     });
-
+    
+    // Si hay datos, ajustar el zoom para mostrar todos los marcadores
+    if (data.length > 0 && markers.length > 0) {
+      var group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.1));
+    }
   }
 
-  function filtrar(){
-
-    var texto = limpiar(document.getElementById("buscar").value);
-    var res = limpiar(document.getElementById("filtroResultado").value);
-    var tipo = limpiar(document.getElementById("filtroTipo").value);
-    var mes = limpiar(document.getElementById("filtroMes").value);
-
-    var filtrados = dataGlobal.filter(d => {
-
-      return (!texto || limpiar(d.distrito).includes(texto)) &&
-             (!res || limpiar(d.resultado).includes(res)) &&
-             (!tipo || limpiar(d.tipo).includes(tipo)) &&
-             (!mes || limpiar(d.mes).includes(mes));
+  // Función para filtrar datos
+  function filtrar() {
+    const texto = limpiar(document.getElementById("buscar").value);
+    const res = limpiar(document.getElementById("filtroResultado").value);
+    const tipo = limpiar(document.getElementById("filtroTipo").value);
+    const mes = limpiar(document.getElementById("filtroMes").value);
+    
+    const filtrados = dataGlobal.filter(d => {
+      const matchTexto = !texto || limpiar(d.distrito).includes(texto);
+      const matchResultado = !res || limpiar(d.resultado).includes(res);
+      const matchTipo = !tipo || limpiar(d.tipo).includes(tipo);
+      const matchMes = !mes || limpiar(d.mes).includes(mes);
+      
+      return matchTexto && matchResultado && matchTipo && matchMes;
     });
-
+    
     dibujar(filtrados);
   }
 
-  // eventos
-  document.getElementById("buscar").oninput = filtrar;
-  document.getElementById("filtroResultado").onchange = filtrar;
-  document.getElementById("filtroTipo").onchange = filtrar;
-  document.getElementById("filtroMes").onchange = filtrar;
-
-  // cargar CSV
-  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv")
-  .then(r=>r.text())
-  .then(data=>{
-
-    var filas = data.split("\n");
-
-    filas.slice(1).forEach(fila=>{
-
-      var col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-      var ubic = (col[2]||"").replace(/"/g,'');
-      if(!ubic.includes(",")) return;
-
-      var c = ubic.split(",");
-      var lat = parseFloat(c[0]);
-      var lng = parseFloat(c[1]);
-
-      if(isNaN(lat)||isNaN(lng)) return;
-
-      dataGlobal.push({
-        lat:lat,
-        lng:lng,
-        direccion:col[1],
-        tipo:col[3],
-        resultado:col[4],
-        distrito:col[5] || "",
-        mes:col[6] || ""
-      });
-
+  // Configurar eventos de los filtros
+  document.getElementById("buscar").addEventListener("input", filtrar);
+  document.getElementById("filtroResultado").addEventListener("change", filtrar);
+  document.getElementById("filtroTipo").addEventListener("change", filtrar);
+  document.getElementById("filtroMes").addEventListener("change", filtrar);
+  
+  // Cargar datos desde Google Sheets
+  const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5Mq_bCbWMooRZGFoXCVe4vt4vVlnWOaDwADRnO-pkNsC17935tuPbSzlwmT8MJUEF_oEzsGt37kEw/pub?gid=306903085&single=true&output=csv";
+  
+  fetch(csvUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(csvText => {
+      const lineas = csvText.split("\n");
+      let datosCargados = 0;
+      let errores = 0;
+      
+      // Saltar encabezado
+      for (let i = 1; i < lineas.length; i++) {
+        const linea = lineas[i].trim();
+        if (!linea) continue;
+        
+        try {
+          // Parsear CSV respetando comillas
+          const coincidencias = linea.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+          if (!coincidencias || coincidencias.length < 7) continue;
+          
+          const col = coincidencias.map(c => c.replace(/^"|"$/g, ''));
+          
+          const ubic = col[2] || "";
+          if (!ubic.includes(",")) continue;
+          
+          const coordenadas = ubic.split(",");
+          const lat = parseFloat(coordenadas[0]);
+          const lng = parseFloat(coordenadas[1]);
+          
+          if (isNaN(lat) || isNaN(lng)) continue;
+          
+          dataGlobal.push({
+            lat: lat,
+            lng: lng,
+            direccion: col[1] || "Sin dirección",
+            tipo: col[3] || "No especificado",
+            resultado: col[4] || "No especificado",
+            distrito: col[5] || "Sin distrito",
+            mes: col[6] || "Sin mes"
+          });
+          
+          datosCargados++;
+        } catch (e) {
+          errores++;
+          console.warn(`Error procesando línea ${i}:`, e);
+        }
+      }
+      
+      console.log(`Cargados ${datosCargados} registros, ${errores} errores`);
+      
+      if (dataGlobal.length === 0) {
+        // Datos de ejemplo si no hay datos reales
+        console.warn("No se encontraron datos, usando datos de ejemplo");
+        dataGlobal.push(
+          { lat: -12.0464, lng: -77.0428, direccion: "Av. Ejemplo 123", tipo: "IPRESS", resultado: "Conforme", distrito: "Lima", mes: "Enero" },
+          { lat: -12.1, lng: -77.05, direccion: "Calle Ejemplo 456", tipo: "Fabricante", resultado: "No Conforme", distrito: "San Isidro", mes: "Febrero" }
+        );
+      }
+      
+      dibujar(dataGlobal);
+    })
+    .catch(error => {
+      console.error("Error cargando datos:", error);
+      // Mostrar mensaje de error en el mapa
+      const errorMsg = L.control({ position: 'topright' });
+      errorMsg.onAdd = function() {
+        const div = L.DomUtil.create('div', 'info error');
+        div.innerHTML = '<div style="background: white; padding: 10px; border-radius: 5px; color: red;">❌ Error al cargar datos. Verifica la conexión.</div>';
+        return div;
+      };
+      errorMsg.addTo(map);
+      
+      // Datos de ejemplo para demostración
+      dataGlobal.push(
+        { lat: -12.0464, lng: -77.0428, direccion: "Centro de Salud Lima", tipo: "IPRESS", resultado: "Conforme", distrito: "Lima", mes: "Enero" },
+        { lat: -12.1, lng: -77.05, direccion: "Planta Industrial", tipo: "Fabricante", resultado: "No Conforme", distrito: "San Isidro", mes: "Febrero" },
+        { lat: -8.115, lng: -79.028, direccion: "Empresa Aguas", tipo: "Emp. Saneamiento", resultado: "Conforme", distrito: "Trujillo", mes: "Marzo" }
+      );
+      dibujar(dataGlobal);
     });
-
-    dibujar(dataGlobal);
-
-  });
-
 });
 </script>
 
